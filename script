@@ -1,0 +1,15 @@
+# ===== build and run =====
+1. docker-compose up
+2. docker-compose up --build
+3. docker-compose up -d --build
+
+# ===== check status =====
+docker-compose ps
+docker-compose logs -f myweb
+docker logs -f work_myweb_1
+docker-compose run myweb /bin/bash
+
+# ===== stop =====
+docker-compose stop
+docker-compose down
+docker-compose down --rmi all
