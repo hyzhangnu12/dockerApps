@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  pgadmin4:
+    image: dpage/pgadmin4:7
+    ports:
+      - "8080:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@pgadmin4.com
+      - PGADMIN_DEFAULT_PASSWORD=123456
+    volumes:
+      - pgadmin4_data:/var/lib/pgadmin
+    depends_on:
+      - db_pgsql
+  db_pgsql:
+    image: postgres:12.0-alpine
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD-123456
+    volumes:
+      - pgsql_db:/var/lib/postgresql/data
+volumes:
+  pgsql_db:
+  pgadmin4_data:
