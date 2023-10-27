@@ -1,0 +1,8 @@
+mkdir mongoose
+cd mongoose
+
+npm init -y
+npm install mongoose --save
+vi main.js
+
+node main.js
