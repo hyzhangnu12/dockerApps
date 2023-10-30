@@ -1,0 +1,60 @@
+version: '3'
+services:
+
+  proxy:
+    build: proxy
+    restart: unless-stopped
+    ports:
+      - 8080:80
+    volumes:
+      - ./proxy/logs:/var/log/nginx
+    depends_on:
+      - backend
+    networks:
+      - frontnet
+
+  backend:
+    build:
+      context: backend
+      target: builder
+    restart: unless-stopped
+    secrets:
+      - db-password
+    ports:
+      - 8000:8000
+    networks:
+      - backnet
+      - frontnet
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:5.7
+    expose:
+      - 3306
+        #- 33060
+    secrets:
+      - db-password
+    volumes:
+      - ./db/data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+      - MYSQL_DATABASE=example
+    networks:
+      - backnet
+    restart: unless-stopped
+    command: '--default-authentication-plugin=mysql_native_password'
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --password="$$(cat /run/secrets/db-password)" --silent']
+      interval: 3s
+      retries: 5
+      start_period: 30s
+
+secrets:
+  db-password:
+    file: db/password.txt
+
+networks:
+  frontnet:
+  backnet:
