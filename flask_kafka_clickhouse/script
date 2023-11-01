@@ -1,0 +1,6 @@
+# try edenhill/kcat
+docker run -it --rm --network=host edenhill/kcat:1.7.1 -b localhost:9093 -P -t test
+
+docker run -it --rm --network=host edenhill/kcat:1.7.1 -b localhost:9093 -C -t test
+
+docker exec -it langchain-clickhouse clickhouse-client
