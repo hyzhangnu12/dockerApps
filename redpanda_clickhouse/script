@@ -1,0 +1,38 @@
+docker exec -it redpanda rpk cluster info
+docker exec -it redpanda rpk topic create agent-reports
+
+python data_generator.py
+docker exec -it redpanda /bin/sh -c 'rpk topic produce agent-reports < /var/lib/redpanda/data/agent-reports-data.csv'
+
+
+
+CREATE DATABASE panda_house;
+
+CREATE TABLE IF NOT EXISTS panda_house.agent_reports
+(
+    agent_id UInt64,
+    real_estate_map_url String,
+    real_estate_type String,
+    real_estate_price Float32
+) ENGINE = Kafka()
+SETTINGS
+    kafka_broker_list = 'redpanda:9092',
+    kafka_topic_list = 'agent-reports',
+    kafka_group_name = 'clickhouse-group',
+    kafka_format = 'CSV',
+    kafka_thread_per_consumer = 0,
+    kafka_num_consumers = 1;
+
+CREATE MATERIALIZED VIEW panda_house.agent_reports_view
+ENGINE = Memory
+AS
+SELECT * FROM panda_house.agent_reports
+SETTINGS
+stream_like_engine_allow_direct_select = 1;
+
+SELECT * FROM panda_house.agent_reports_view;
+
+SELECT AVG(real_estate_price)
+FROM panda_house.agent_reports_view
+WHERE real_estate_price<=150000;
+
